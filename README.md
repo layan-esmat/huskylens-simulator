@@ -1,83 +1,69 @@
-# HuskyLens Face Recognition Door Lock System (Arduino)
+# README.md - HuskyLens (Simulated) Face Recognition Door Lock System
 
-This project uses a **HuskyLens AI camera** and **Arduino** to build a smart face recognition door lock system. When a known face is detected, the door unlocks for a few seconds using a servo motor, then automatically locks again.
+This project simulates a HuskyLens-based face recognition system using Arduino and a servo motor. Since I don’t have a HuskyLens device yet, I simulated the recognition using a push button in Tinkercad. When the button is pressed, it acts like HuskyLens detected an authorized face and unlocks a servo-powered door for 3 seconds.
 
 ## Features
 
-- Uses **HuskyLens in Face Recognition mode**
-- Recognizes trained faces with a unique ID
-- Unlocks door using a **servo motor** for authorized faces
-- Auto-locks after 3 seconds
-- Built using Arduino Uno and SoftwareSerial communication
+* Simulates face recognition using a push button
+* Unlocks door using a servo motor
+* Locks again after 3 seconds
+* Easy to run in Tinkercad Circuits
 
----
+## Components Used (Simulated in Tinkercad)
 
-## Components Required
+| Component     | Quantity | Description                   |
+| ------------- | -------- | ----------------------------- |
+| Arduino Uno   | 1        | Main controller               |
+| Push Button   | 1        | Simulates HuskyLens trigger   |
+| 10kΩ Resistor | 1        | Pull-down resistor for button |
+| Servo Motor   | 1        | Simulates door lock mechanism |
+| Breadboard    | 1        | For wiring                    |
+| Jumper Wires  | Several  | For connections               |
 
-| Component          | Quantity | Description                                 |
-|--------------------|----------|---------------------------------------------|
-| HuskyLens AI Camera| 1        | For face recognition                        |
-| Arduino Uno        | 1        | Microcontroller                             |
-| Servo Motor        | 1        | Simulates door lock                         |
-| Jumper Wires       | Several  | For connections                             |
-| Breadboard (optional)| 1      | For organizing components                   |
-| USB Cable          | 1        | To power Arduino and upload code            |
+## How It Works
 
----
-
-## Wiring Diagram
-
-### HuskyLens to Arduino (UART mode using SoftwareSerial):
-
-| HuskyLens Pin | Arduino Uno Pin |
-|---------------|------------------|
-| TX            | Pin 10 (RX)      |
-| RX            | Pin 11 (TX)      |
-| GND           | GND              |
-| VCC           | 5V               |
-
-### Servo Motor:
-
-| Servo Wire | Arduino Pin |
-|------------|-------------|
-| Signal     | Pin 9       |
-| VCC        | 5V          |
-| GND        | GND         |
-
----
+* When the button is pressed, Arduino assumes HuskyLens has detected a face.
+* The servo rotates to 90° (unlocked position).
+* After 3 seconds, it returns to 0° (locked position).
 
 ## Arduino Code
 
 ```cpp
-#include "HUSKYLENS.h"
-#include <SoftwareSerial.h>
 #include <Servo.h>
 
-SoftwareSerial mySerial(10, 11); // RX, TX
-HUSKYLENS huskylens;
+const int buttonPin = 2;
 Servo doorServo;
 
 void setup() {
-  Serial.begin(9600);
-  mySerial.begin(9600);
-  huskylens.begin(mySerial);
-  doorServo.attach(9);         // Servo connected to pin 9
-  doorServo.write(0);          // Locked position
+  pinMode(buttonPin, INPUT);
+  doorServo.attach(9);
+  doorServo.write(0); // Start locked
 }
 
 void loop() {
-  if (huskylens.request()) {
-    if (huskylens.available()) {
-      HUSKYLENSResult result = huskylens.read();
-
-      // Check if recognized face has ID 1
-      if (result.ID == 1) {
-        Serial.println("Authorized face detected!");
-        doorServo.write(90);   // Unlock door
-        delay(3000);           // Wait 3 seconds
-        doorServo.write(0);    // Lock again
-      }
-    }
+  int buttonState = digitalRead(buttonPin);
+  
+  if (buttonState == HIGH) {
+    doorServo.write(90); // Unlock
+    delay(3000);         // Keep unlocked for 3 seconds
+    doorServo.write(0);  // Lock
   }
-  delay(100);
 }
+```
+
+## Wiring Notes
+
+* Button:
+
+  * One side → 5V
+  * Other side → Pin 2 and to GND via a 10kΩ resistor (pull-down)
+* Servo Motor:
+
+  * Signal (orange) → Pin 9
+  * VCC (red) → 5V
+  * GND (brown) → GND
+
+## Project Preview
+
+
+<img width="1871" height="805" alt="tinkercad_circuit" src="https://github.com/user-attachments/assets/8a5bd531-d1d7-4a60-9ba4-ef171ec07d94" />
