@@ -1,0 +1,18 @@
+const int buttonPin = 2;
+Servo doorServo;
+
+void setup() {
+  pinMode(buttonPin, INPUT);
+  doorServo.attach(9);
+  doorServo.write(0); // Start locked
+}
+
+void loop() {
+  int buttonState = digitalRead(buttonPin);
+
+  if (buttonState == HIGH) {
+    doorServo.write(90); // Unlock
+    delay(3000);         // Keep unlocked for 3 seconds
+    doorServo.write(0);  // Lock
+  }
+}
